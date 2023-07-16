@@ -39,3 +39,42 @@ export const register = async (req, res) => {
     });
   }
 };
+
+export const login = async (req, res) => {
+  try {
+    const user = await userModel.findOne({
+      login: req.body.login,
+    });
+    if (!user) {
+      return res.status(404).json({
+        msg: "Не верно введен логин или пароль",
+      });
+    }
+    const validatePassword = await bcrypt.compare(
+      req.body.password.toString(),
+      user.password
+    );
+    if (!validatePassword) {
+      return res.status(404).json({
+        msg: "Не верно введен логин или пароль",
+      });
+    }
+    const token = jwt.sign(
+      {
+        _id: user._id,
+      },
+      "secret123",
+      {
+        expiresIn: "30d",
+      }
+    );
+    res.json({
+      user,
+      token,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Кажется произошла какая-то ошибка, попробуйте позже",
+    });
+  }
+};
