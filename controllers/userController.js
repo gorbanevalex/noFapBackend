@@ -78,3 +78,32 @@ export const login = async (req, res) => {
     });
   }
 };
+
+export const update = async (req, res) => {
+  try {
+    userModel
+      .findOneAndUpdate(
+        {
+          _id: req.userId,
+        },
+        {
+          $set: { timer: req.body.timer },
+        },
+        {
+          returnDocument: "after",
+        }
+      )
+      .then((doc) => {
+        if (!doc) {
+          return res.status(404).json({
+            msg: "Не удалось сбросить таймер",
+          });
+        }
+        res.json(doc);
+      });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Не удалось сбросить таймер",
+    });
+  }
+};
